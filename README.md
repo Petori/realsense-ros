@@ -1,85 +1,10 @@
-# ROS Wrapper for Intel&reg; RealSense&trade; Devices
-These are packages for using Intel RealSense cameras (D400 series SR300 camera and T265 Tracking Module) with ROS.
-
-LibRealSense supported version: v2.35.2 (see [realsense2_camera release notes](https://github.com/IntelRealSense/realsense-ros/releases))
-
-## Installation Instructions
-
-The following instructions are written for ROS Kinetic, on **Ubuntu 16.04** but apply to ROS Melodic on **Ubuntu 18.04** as well, by replacing kinetic with melodic wherever is needed.
-
-   ### Step 1: Install the ROS distribution
-   - #### Install [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu), on Ubuntu 16.04 or [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu) on Ubuntu 18.04.
-
-
-### There are 2 sources to install realsense2_camera from:
-
-* ### Method 1: The ROS distribution:
-    realsense2_camera is available as a debian package of ROS distribution. It can be installed by typing:
-    
-    ```
-    export ROS_VER=kinetic 
-    ```
-    or
-    ```
-    export ROS_VER=melodic 
-    ```
-    sudo apt-get install ros-$ROS_VER-realsense2-camera`
-
-    This will install both realsense2_camera and its dependents, including librealsense2 library.
-
-    Notice:
-    * The version of librealsense2 is almost always behind the one availeable in RealSense&trade; official repository.
-    * librealsense2 is not built to use native v4l2 driver but the less stable RS-USB protocol. That is because the last is more general and operational on a larger variety of platforms.
-    * realsense2_description is available as a separate debian package of ROS distribution. It includes the 3D-models of the devices and is necessary for running launch files that include these models (i.e. rs_d435_camera_with_model.launch). It can be installed by typing:
-    `sudo apt-get install ros-$ROS_VER-realsense2-description`
-
-
-* ### Method 2: The RealSense&trade; distribution:
-
-   #### This option is demonstrated in the [.travis.yml](https://github.com/intel-ros/realsense/blob/development/.travis.yml) file. It basically summerize the elaborate instructions in the following 2 steps:
-
-   ### Step 1: Install the latest Intel&reg; RealSense&trade; SDK 2.0
-   - #### Install from [Debian Package](https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md#installing-the-packages) - In that case treat yourself as a developer. Make sure you follow the instructions to also install librealsense2-dev and librealsense-dkms packages.
-
-   #### OR
-   - #### Build from sources by downloading the latest [Intel&reg; RealSense&trade; SDK 2.0](https://github.com/IntelRealSense/librealsense/releases/tag/v2.35.2) and follow the instructions under [Linux Installation](https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md)
-
-
-   ### Step 2: Install Intel&reg; RealSense&trade; ROS from Sources
-   - Create a [catkin](http://wiki.ros.org/catkin#Installing_catkin) workspace
-   ```bash
-   mkdir -p ~/catkin_ws/src
-   cd ~/catkin_ws/src/
-   ```
-   - Clone the latest Intel&reg; RealSense&trade; ROS from [here](https://github.com/intel-ros/realsense/releases) into 'catkin_ws/src/'
-   ```bashrc
-   git clone https://github.com/IntelRealSense/realsense-ros.git
-   cd realsense-ros/
-   git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
-   cd ..
-   ```
-   - Make sure all dependent packages are installed. You can check .travis.yml file for reference.
-   - Specifically, make sure that the ros package *ddynamic_reconfigure* is installed. If *ddynamic_reconfigure* cannot be installed using APT, you may clone it into your workspace 'catkin_ws/src/' from [here](https://github.com/pal-robotics/ddynamic_reconfigure/tree/kinetic-devel) (Version 0.2.2)
-
-   ```bash
-  catkin_init_workspace
-  cd ..
-  catkin_make clean
-  catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
-  catkin_make install
-  echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
-  source ~/.bashrc
-  ```
 
 ## Usage Instructions
+- `roslaunch realsense2_camera rs_camera.launch`
+- `rosrun rqt_image_view rqt_image_view`
 
-### Start the camera node
-To start the camera node in ROS:
 
-```bash
-roslaunch realsense2_camera rs_camera.launch
-```
-
+## Official
 This will stream all camera sensors and publish on the appropriate ROS topics.
 
 Other stream resolutions and frame rates can optionally be provided as parameters to the 'rs_camera.launch' file.
@@ -104,7 +29,7 @@ After running the above command with D435i attached, the following list of topic
 - /camera/accel/sample
 - /diagnostics
 
-The "/camera" prefix is the default and can be changed. Check the rs_multiple_devices.launch file for an example.
+The "/camera" prefix is the default and can be changed. Check the **rs_multiple_devices.launch** file for an example.
 If using D435 or D415, the gyro and accel topics wont be available. Likewise, other topics will be available when using T265 (see below).
 
 ### Launch parameters
@@ -145,7 +70,7 @@ Setting *unite_imu_method* creates a new topic, *imu*, that replaces the default
 - **topic_odom_in**: For T265, add wheel odometry information through this topic. The code refers only to the *twist.linear* field in the message.
 - **calib_odom_file**: For the T265 to include odometry input, it must be given a [configuration file](https://github.com/IntelRealSense/librealsense/blob/master/unit-tests/resources/calibration_odometry.json). Explanations can be found [here](https://github.com/IntelRealSense/librealsense/pull/3462). The calibration is done in ROS coordinates system.
 - **publish_tf**: boolean, publish or not TF at all. Defaults to True.
-- **tf_publish_rate**: double, positive values mean dynamic transform publication with specified rate, all other values mean static transform publication. Defaults to 0 
+- **tf_publish_rate**: double, positive values mean dynamic transform publication with specified rate, all other values mean static transform publication. Defaults to 0
 - **publish_odom_tf**: If True (default) publish TF from odom_frame to pose_frame.
 
 
@@ -170,64 +95,6 @@ The following command allow to change camera control values using [http://wiki.r
 rosrun rqt_reconfigure rqt_reconfigure
 ```
 <p align="center"><img src="https://user-images.githubusercontent.com/40540281/55330573-065d8600-549a-11e9-996a-5d193cbd9a93.PNG" /></p>
-
-### Work with multiple cameras
-**Important Notice:** Launching multiple T265 cameras is currently not supported. This will be addressed in a later version. 
-
-Here is an example of how to start the camera node and streaming with two cameras using the [rs_multiple_devices.launch](./realsense2_camera/launch/rs_multiple_devices.launch).
-```bash
-roslaunch realsense2_camera rs_multiple_devices.launch serial_no_camera1:=<serial number of the first camera> serial_no_camera2:=<serial number of the second camera>
-```
-The camera serial number should be provided to `serial_no_camera1` and `serial_no_camera2` parameters. One way to get the serial number is from the [rs-enumerate-devices](https://github.com/IntelRealSense/librealsense/blob/58d99783cc2781b1026eeed959aa3f7b562b20ca/tools/enumerate-devices/readme.md) tool.
-```bash
-rs-enumerate-devices | grep Serial
-```
-
-Another way of obtaining the serial number is connecting the camera alone, running
-```bash
-roslaunch realsense2_camera rs_camera.launch
-```
-and looking for the serial number in the log printed to screen under "[INFO][...]Device Serial No:".
-
-Another way to use multiple cameras is running each from a different terminal. Make sure you set a different namespace for each camera using the "camera" argument:
-
-```bash
-roslaunch realsense2_camera rs_camera.launch camera:=cam_1 serial_no:=<serial number of the first camera>
-roslaunch realsense2_camera rs_camera.launch camera:=cam_2 serial_no:=<serial number of the second camera>
-...
-
-```
-## Using T265 ##
-**Important Notice:** For wheeled robots, odometer input is a requirement for robust and accurate tracking. The relevant APIs will be added to librealsense and ROS/realsense in upcoming releases. Currently, the API is available in the [underlying device driver](https://github.com/IntelRealSense/librealsense/blob/master/third-party/libtm/libtm/include/TrackingDevice.h#L508-L515).
-
-### Start the camera node
-To start the camera node in ROS:
-
-```bash
-roslaunch realsense2_camera rs_t265.launch
-```
-
-This will stream all camera sensors and publish on the appropriate ROS topics.
-
-The T265 sets its usb unique ID during initialization and without this parameter it wont be found.
-Once running it will publish, among others, the following topics:
-- /camera/odom/sample
-- /camera/accel/sample
-- /camera/gyro/sample
-- /camera/fisheye1/image_raw
-- /camera/fisheye2/image_raw
-
-To visualize the pose output and frames in RViz, start:
-```bash
-roslaunch realsense2_camera demo_t265.launch
-```
-
-### About Frame ID
-The wrapper publishes static transformations(TFs). The Frame Ids are divided into 3 groups:
-- ROS convention frames: follow the format of <tf_prefix>\_<\_stream>"\_frame" for example: camera_depth_frame, camera_infra1_frame, etc.
-- Original frame coordinate system: with the suffix of <\_optical_frame>. For example: camera_infra1_optical_frame. Check the device documentation for specific coordinate system for each stream.
-- base_link: For example: camera_link. A reference frame for the device. In D400 series and SR300 it is the depth frame. In T265, the pose frame.
-
 
 ### realsense2_description package:
 For viewing included models, a separate package is included. For example:
@@ -255,7 +122,7 @@ python src/realsense/realsense2_camera/scripts/rs2_test.py --all
 ## Known Issues
 * This ROS node does not currently support [ROS Lunar Loggerhead](http://wiki.ros.org/lunar).
 * This ROS node does not currently work with [ROS 2](https://github.com/ros2/ros2/wiki).
-* This ROS node currently does not support running multiple T265 cameras at once. This will be addressed in a future update. 
+* This ROS node currently does not support running multiple T265 cameras at once. This will be addressed in a future update.
 
 ## License
 Copyright 2018 Intel Corporation
